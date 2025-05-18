@@ -1,6 +1,7 @@
 package Controller;
 import Model.Account;
 import Model.Message;
+import java.util.List;
 import Service.AccountService;
 import Service.MessageService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -70,11 +71,20 @@ public class SocialMediaController {
     }
 
     private void getMessagesHandler(Context context) {
-        context.json("sample text");
+        List<Message> messages = messageService.getAllMessages();
+        context.json(messages);
+    }
+
+    private void messageIdHandler(Context context) throws JsonProcessingException{
+        Message message = messageService.getMessageByID(Integer.parseInt(context.pathParam("message_id")));
+        if (message != null) context.json(message);
+        else context.status(200);
     }
 
     private void deleteMessageHandler(Context context) {
-        context.json("sample text");
+        Message message = messageService.deleteMessage(Integer.parseInt(context.pathParam("message_id")));
+        if (message!= null) context.json(message);
+        else context.status(200);
     }
 
     private void updateMessageHandler(Context context) {
@@ -82,10 +92,6 @@ public class SocialMediaController {
     }
 
     private void getAllMessagesByAccountHandler(Context context) {
-        context.json("sample text");
-    }
-
-    private void messageIdHandler(Context context) {
         context.json("sample text");
     }
 

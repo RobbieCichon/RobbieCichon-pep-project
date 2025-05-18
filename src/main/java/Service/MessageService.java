@@ -24,4 +24,12 @@ public class MessageService {
         if(message.getMessage_text() == "" || message.getMessage_text().length() >= 255 || !messageDAO.postedIdExists(message)) return null;
         return messageDAO.addMessage(message);
     }
+
+    public Message getMessageByID(int id){
+        return messageDAO.getMessageByID(id);
+    }
+
+    public Message deleteMessage(int id){
+        return messageDAO.deleteMessage(id);
+    }
 }
