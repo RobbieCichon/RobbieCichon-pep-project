@@ -21,7 +21,7 @@ public class MessageService {
     }
 
     public Message addMessage(Message message){
-        if(message.getMessage_text() == "" || message.getMessage_text().length() >= 255 || !messageDAO.postedIdExists(message)) return null;
+        if(message.getMessage_text() == "" || message.getMessage_text().length() >= 255 || !messageDAO.postedIdExists(message.getPosted_by())) return null;
         return messageDAO.addMessage(message);
     }
 
@@ -31,5 +31,18 @@ public class MessageService {
 
     public Message deleteMessage(int id){
         return messageDAO.deleteMessage(id);
+    }
+
+    public Message updateMessage(String messageContents, int id){
+        if (getMessageByID(id) == null) return null;
+        else {
+            messageDAO.updateMessage(messageContents, id);
+            return getMessageByID(id);
+        }
+    }
+
+    public List<Message> getAllMessagesFromUser(int id){
+        if (!messageDAO.postedIdExists(id)) return new ArrayList<>();
+        return messageDAO.getAllMessagesFromUser(id);
     }
 }

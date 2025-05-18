@@ -9,11 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
-/**
- * TODO: You will need to write your own endpoints and handlers for your controller. The endpoints you will need can be
- * found in readme.md as well as the test cases. You should
- * refer to prior mini-project labs and lecture materials for guidance on how a controller may be built.
- */
 public class SocialMediaController {
     AccountService accountService;
     MessageService messageService;
@@ -40,6 +35,12 @@ public class SocialMediaController {
 
         return app;
     }
+    /**
+     * Handler to register a new user, provided that the username and password fulfil the given requirements.
+     * @param context the context object handles information HTTP requests and generates responses within Javalin. It will
+     *            be available to this method automatically thanks to the app.post method.
+     * @throws JsonProcessingException will be thrown if there is an issue converting JSON into an object.
+     */
     private void postRegisterHandler(Context context) throws JsonProcessingException{
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(context.body(), Account.class);
@@ -50,6 +51,12 @@ public class SocialMediaController {
         else context.status(400);
     }
 
+    /**
+     * Handler to login to the blog using an existing account's credentials.
+     * @param context the context object handles information HTTP requests and generates responses within Javalin. It will
+     *            be available to this method automatically thanks to the app.post method.
+     * @throws JsonProcessingException will be thrown if there is an issue converting JSON into an object.
+     */
     private void postLoginHandler(Context context) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(context.body(), Account.class);
@@ -59,6 +66,12 @@ public class SocialMediaController {
         }
         else context.status(401);
     }
+    /**
+     * Handler to post a new message, provided that the provided message text and user ID fulfil the given requirements.
+     * @param context the context object handles information HTTP requests and generates responses within Javalin. It will
+     *            be available to this method automatically thanks to the app.post method.
+     * @throws JsonProcessingException will be thrown if there is an issue converting JSON into an object.
+     */
 
     private void postMessagesHandler(Context context) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
@@ -70,29 +83,64 @@ public class SocialMediaController {
         else context.status(400);
     }
 
+    /**
+     * Handler to retrieve all posted messages.
+     * @param context the context object handles information HTTP requests and generates responses within Javalin. It will
+     *            be available to this method automatically thanks to the app.post method.
+     */
     private void getMessagesHandler(Context context) {
         List<Message> messages = messageService.getAllMessages();
         context.json(messages);
     }
 
-    private void messageIdHandler(Context context) throws JsonProcessingException{
+    /**
+     * Handler to retrieve a specific post using its ID, provided the ID and message exist.
+     * @param context the context object handles information HTTP requests and generates responses within Javalin. It will
+     *            be available to this method automatically thanks to the app.post method.
+     */
+    private void messageIdHandler(Context context){
         Message message = messageService.getMessageByID(Integer.parseInt(context.pathParam("message_id")));
         if (message != null) context.json(message);
         else context.status(200);
     }
-
+    /**
+     * Handler to delete a specific post using its ID, provided the ID and message exist.
+     * @param context the context object handles information HTTP requests and generates responses within Javalin. It will
+     *            be available to this method automatically thanks to the app.post method.
+     */
     private void deleteMessageHandler(Context context) {
         Message message = messageService.deleteMessage(Integer.parseInt(context.pathParam("message_id")));
         if (message!= null) context.json(message);
         else context.status(200);
     }
 
-    private void updateMessageHandler(Context context) {
-        context.json("sample text");
+    /**
+     * Handler to update a specific post with a new message text, subject to the same requirements as a new message would
+     *            have.
+     * @param context the context object handles information HTTP requests and generates responses within Javalin. It will
+     *            be available to this method automatically thanks to the app.post method.
+     * @throws JsonProcessingException will be thrown if there is an issue converting JSON into an object.
+     */
+    private void updateMessageHandler(Context context) throws JsonProcessingException{
+        ObjectMapper mapper = new ObjectMapper();
+
+        int id = Integer.parseInt(context.pathParam("message_id"));
+        Message message = mapper.readValue(context.body(), Message.class);
+        String messageContents = message.getMessage_text();
+
+        Message updatedMessage = messageService.updateMessage(messageContents, id);
+
+        if (messageContents.length() >= 255 || messageContents == "" || updatedMessage == null) context.status(400);
+        else context.json(updatedMessage);
     }
 
+    /**
+     * Handler to retrieve all posted messages from a specific user, provided that the user both exists and have posted.
+     * @param context the context object handles information HTTP requests and generates responses within Javalin. It will
+     *            be available to this method automatically thanks to the app.post method.
+     */
     private void getAllMessagesByAccountHandler(Context context) {
-        context.json("sample text");
+        context.json(messageService.getAllMessagesFromUser(Integer.parseInt(context.pathParam("account_id"))));
     }
 
 }

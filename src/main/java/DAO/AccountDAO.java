@@ -8,9 +8,14 @@ import java.util.List;
 
 
 public class AccountDAO {
+    /**
+     * Retrieves all accounts registered in the SQL database.
+     * @return An ArrayList of all accounts on the social media site.
+     */
     public List<Account> getAllAccounts(){
         Connection connection = ConnectionUtil.getConnection();
         List<Account> accounts = new ArrayList<>();
+
         try{
             String sql = "SELECT * FROM account";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -26,8 +31,14 @@ public class AccountDAO {
         return accounts;
     }
 
+    /**
+     * Registers a new user to the SQL database.
+     * @param account The Account Object to be added.
+     * @return an Account Object now containing the newly created account_id, null if failed.
+     */
     public Account insertAccount(Account account){
         Connection connection = ConnectionUtil.getConnection();
+
         try {
             String sql = "INSERT INTO account (username, password) VALUES (?, ?)";
             PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -49,9 +60,18 @@ public class AccountDAO {
         return null;
     }
 
+    /**
+     * Checks for valid credentials to login to the site as a specific user.
+     * @param account Account object with username and password given by the front end user.
+     * @param currentAccounts An ArrayList of all currently registered accounts.
+     * @return An Account object if there exists one with the same credentials passed through account, null if not.
+     */
     public Account accessAccount(Account account, List<Account> currentAccounts){
+        String username = account.getUsername();
+        String password = account.getPassword();
+
         for (int i = 0; i < currentAccounts.size(); i++){
-            if (currentAccounts.get(i).getUsername().equals(account.getUsername()) && currentAccounts.get(i).getPassword().equals(account.getPassword())){
+            if (currentAccounts.get(i).getUsername().equals(username) && currentAccounts.get(i).getPassword().equals(password)){ 
                 return currentAccounts.get(i);
             } 
         }
